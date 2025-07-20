@@ -60,12 +60,15 @@ console.log('productId',productId);
     <>
       <div>
         {addProductToCart || [] ? (
-          <div>
+          <div className="dark:bg-slate-900  py-3 ">
             {addProductToCart || [] ? (
-              <div className="mb-3 rounded-xl">
+              <div className="rounded-xl ">
                 <div>
                   {console.log("addProductToCart", addProductToCart)}
-                  <div className=" py-4 px-4 container shadow-md rounded-xl w-[90%] my-4 mx-auto flex justify-between items-center bg-[#f0f3f2]">
+                  <div
+                    className=" py-4 px-4 mb-3 container shadow-md rounded-xl w-[90%]  mx-auto flex justify-between items-center
+                    bg-[#f0f3f2]"
+                  >
                     <div>
                       <h1 className="text-xl">Shop Cart</h1>
                       <h3 className="text-[#0aad0a]">
@@ -84,7 +87,7 @@ console.log('productId',productId);
                 {addProductToCart?.map((product) => (
                   <div
                     key={product._id}
-                    className="container w-[90%] mx-auto mb-3 shadow-md rounded-xl bg-[#f0f3f2]"
+                    className="container w-[90%] mx-auto mb-6 shadow-md rounded-xl bg-[#f0f3f2] dark:bg-[#2A3E4B]"
                   >
                     {/* {console.log(product)} */}
                     <div className=" flex justify-between items-center p-4">
@@ -97,7 +100,7 @@ console.log('productId',productId);
                           />
                         </div>
                         <div className="w-[90%] ">
-                          <h3>{product.product.title}</h3>
+                          <h3 className='dark:text-white'>{product.product.title}</h3>
                           {/* <h3>{product.product._id}id </h3> */}
                           <h5 className="text-[#0aad0a] my-2">
                             price :{product.price}
@@ -106,14 +109,14 @@ console.log('productId',productId);
                             onClick={() => RemoveProduct(product.product._id)}
                             className="cursor-pointer text-red-500"
                           >
-                            <i className="fa fa-trash text-red-500"></i>
+                            <i className="fa fa-trash text-red-500 mr-1"></i>
                             Remove
                           </p>
                         </div>
                       </div>
                       <div className=" flex justify-end items-center w-[25%]">
                         <button
-                          className="px-2   border-2 border-[#0aad0a] rounded"
+                          className="px-2   border-2 border-[#0aad0a] rounded dark:text-white"
                           onClick={() =>
                             handelBtnCount(
                               product.product._id,
@@ -128,7 +131,7 @@ console.log('productId',productId);
                           <button className="p-3  border-2 border-[#0aad0a] bg-[#0aad0a] rounded"></button>
                         ) : (
                           <button
-                            className="px-2  border-2 border-[#0aad0a] rounded"
+                            className="px-2  border-2 border-[#0aad0a] rounded  dark:text-white"
                             onClick={() =>
                               handelBtnCount(
                                 product.product._id,
@@ -143,12 +146,12 @@ console.log('productId',productId);
                     </div>
                   </div>
                 ))}
-                {console.log(addProductToCart)}
+                {/* {console.log(addProductToCart)} */}
                 {addProductToCart && addProductToCart.length > 0 ? (
-                  <div className="w-[90%] mx-auto my-8 text-center">
+                  <div className="w-[90%] mx-auto text-center mb-4">
                     <Link
                       to="/Payment"
-                      className="bg-[#0aad0a] w-1/4 text-white rounded-xl p-4 transition-all duration-300 hover:bg-[#087508] hover:shadow-lg hover:scale-105"
+                      className="bg-[#0aad0a] w-1/4 mt-8  text-white rounded-xl p-4 transition-all duration-300 hover:bg-[#087508] hover:shadow-lg hover:scale-105"
                     >
                       Go to Payment
                     </Link>

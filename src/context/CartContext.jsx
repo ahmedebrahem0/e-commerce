@@ -1,165 +1,203 @@
-import axios from "axios";
-import { createContext, useEffect, useState } from "react"
-  export const CartContext = createContext();
+import { createContext, useContext, useEffect, useState } from "react";
+import { toast } from "react-toastify";
+import { AuthContext } from "./AuthContext";
+import { cartService } from "../services";
+
+export const CartContext = createContext();
 
 export default function CartContextProvider({ children }) {
   const [addProductToCart, setAddProductToCart] = useState(null);
-  const [numOfCartItems, setNumOfCartItems] = useState(0)
-  const [totalCartPrice, setTotalCartPrice] = useState(0)
-  const [showing, setShowing] = useState(true)
+  const [addProductToWishlist, setAddProductToWishlist] = useState(null);
+  const [numOfCartItems, setNumOfCartItems] = useState(0);
+  const [numOfWishlist, setNumOfWishlist] = useState(0);
+  const [totalCartPrice, setTotalCartPrice] = useState(0);
+  const [showing, setShowing] = useState(true);
   const [CartId, setCartId] = useState(null);
+  const [heart, setHeart] = useState(null);
+  const { Token} = useContext(AuthContext);
+  // console.log(Token);
+  useEffect(() => {
+      if (Token) {
+        getUserWishlist();
+        getUserCart();
+      } else {
+        clearUI(); // إعادة تعيين الحالة إذا لم يكن هناك مستخدم مسجل دخوله
+      }
+    }, [Token]);
 
 
   function clearUI() {
-    setAddProductToCart(null)
-    setNumOfCartItems(0)
-    setTotalCartPrice(0)
-    setCartId(null)
+    setAddProductToCart(null);
+    setNumOfCartItems(0);
+    setTotalCartPrice(0);
+    setCartId(null);
+    // setNumOfWishlist(0); // إعادة تعيين عدد العناصر في الـ Wishlist
   }
 
-  // console.log(addPro ductToCart);
-  let headers = {
-      token: localStorage.getItem('tkn')
-    }
-  
   async function addProduct(pId) {
-    console.log(pId);
-
-  setShowing(false);
-    return  axios.post('https://ecommerce.routemisr.com/api/v1/cart', { "productId": pId }, {
-      headers
-    })
-      .then((res) => {
-        console.log('res',res);
-        console.log('pid',pId);
-        
-        setAddProductToCart(res.data.data.products)
-        setNumOfCartItems(res.data.numOfCartItems)
-        setTotalCartPrice(res.data.data.totalCartPrice)
-        setShowing(true);
-        getUserCart()
-        // console.log(res.data.status)
-        return { res, status: true };
-      })
-    .catch((error)=>{
-      setShowing(true);
-      // console.log(error)
-      return {error ,status: false};
-    })
-  }
-
-  async function handelButton(Id, newCount) {
-      return  axios
-      .put(
-        `https://ecommerce.routemisr.com/api/v1/cart/${Id}`,
-        {
-          count: newCount,
-        },
-        {
-          headers,
-        }
-      )
+    setShowing(false);
+    return cartService.addToCart(pId)
       .then((res) => {
         setAddProductToCart(res.data.data.products);
         setNumOfCartItems(res.data.numOfCartItems);
         setTotalCartPrice(res.data.data.totalCartPrice);
-
-        return true
+        setShowing(true);
+        getUserCart();
+        return { res, status: true };
       })
       .catch((error) => {
-        console.log(error)
-        return false
-
-      })
-    
+        setShowing(true);
+        return { error, status: false };
+      });
   }
 
- async function DeleteProduct(productId) {
-  
-    return axios.delete(`https://ecommerce.routemisr.com/api/v1/cart/${productId}`, {
-      headers
-    })
-      .then((res)=>{
-                setAddProductToCart(res.data.data.products);
-                setNumOfCartItems(res.data.numOfCartItems);
+
+
+  async function handelButton(Id, newCount) {
+    return cartService.updateCartItem(Id, newCount)
+      .then((res) => {
+        setAddProductToCart(res.data.data.products);
+        setNumOfCartItems(res.data.numOfCartItems);
         setTotalCartPrice(res.data.data.totalCartPrice);
-        return true
+        return true;
+      })
+      .catch((error) => {
+        console.log(error);
+        return false;
+      });
+  }
+
+  async function DeleteProduct(productId) {
+    return cartService.removeFromCart(productId)
+      .then((res) => {
+        setAddProductToCart(res.data.data.products);
+        setNumOfCartItems(res.data.numOfCartItems);
+        setTotalCartPrice(res.data.data.totalCartPrice);
+        return true;
+      })
+      .catch((error) => {
+        console.log(error);
+        return false;
+      });
+  }
+  async function DeleteFromWishlist(wishListId) {
+    return cartService.removeFromWishlist(wishListId)
+      .then((res) => {
+        setNumOfWishlist(numOfWishlist);
+
+        return true;
+      })
+      .catch((error) => {
+        console.log(error);
+        return false;
+      });
+  }
+
+  async  function RemoveItems() {
+    return cartService.clearCart()
+      .then((res) => {
+        setAddProductToCart(null);
+        setNumOfCartItems(0);
+        setTotalCartPrice(0);
+        return true;
+      })
+      .catch((error) => {
+        console.log(error);
+        return false;
+      });
+  }
+
+  async function getUserCart() {
+    return cartService.getUserCart()
+      .then((res) => {
+        setAddProductToCart(res.data.data.products);
+        setNumOfCartItems(res.data.numOfCartItems);
+        setTotalCartPrice(res.data.data.totalCartPrice);
+        setCartId(res.data.data._id);
+        setShowing(true);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  }
+
+
+    async function handelWishlist(WishlistId) {
+      // console.log("WishlistId hena", WishlistId);
+      const WishlistIdCode = WishlistId;
+      return cartService.addToWishlist(WishlistId)
+        .then((res) => {
+          // toast.success(res.data.message);
+          console.log("res from handel ", res);
+          if (WishlistIdCode === WishlistId) {
+            
+            return { res, status: true };
+          }
+        })
+        .catch((error) => {
+          toast.error(error.response?.data?.message || "Something went wrong");
+          return { error, status: false };
+        });
+  }
+  
+  async function getUserWishlist() {
+  return await cartService.getUserWishlist()
+    .then((res) => {
+      setAddProductToWishlist(res.data.data);
+      const newWishlistCount = res.data.count;
+      // console.log(newWishlistCount);
+      if (newWishlistCount !== 0 && newWishlistCount === numOfWishlist) {
+        toast.error("already added");
+        // setNumOfWishlist(newWishlistCount);
+        setHeart(null);
+        // console.log('then')
+        return { res, newWishlistCount };
       }
-      )
-    .catch(()=>{
-      console.log(error)
-      return false
+      else {
+        // console.log("else me");
+        setNumOfWishlist((prev) => prev + 1);
+        setNumOfWishlist(newWishlistCount);
+        // console.log("catch");
+        // console.log(prev);
+        return false;
+      }
     })
-  }
-  function RemoveItems() {
-
-     axios
-       .delete(`https://ecommerce.routemisr.com/api/v1/cart`, {
-         headers,
-       })
-       .then((res) => {
-        //  addProduct()
-         setAddProductToCart();
-         setNumOfCartItems(res.data.numOfCartItems);
-         setTotalCartPrice();
-         console.log(res);
-
-        //  return true
-       })
-       .catch((error) => {
-         console.log(error);
-        //  return false
-       });
-  }
-
-  function getUserCart() {
-    axios.get("https://ecommerce.routemisr.com/api/v1/cart", {
-      headers
-    })
-    .then((res)=>{
-      // console.log(res)
-      setAddProductToCart(res.data.data.products);
-      setNumOfCartItems(res.data.numOfCartItems);
-      setTotalCartPrice(res.data.data.totalCartPrice);
-      setCartId(res.data.data._id)
-      setShowing(true);
-
-    })
-    .catch((error)=>{
-      console.log(error)
-    })
-  }
-  useEffect(() => {
-    getUserCart()
-  },[])
-
-  return (
-    <>
-      <CartContext.Provider
-        value={{
-          addProduct,
-          totalCartPrice,
-          numOfCartItems,
-          addProductToCart,
-          showing,
-          CartId,
-          getUserCart,
-          handelButton,
-          DeleteProduct,
-          RemoveItems,
-          setAddProductToCart,
-          setNumOfCartItems,
-          setTotalCartPrice,
-          clearUI,
-          setCartId,
-        }}
-      >
-        {children}
-      </CartContext.Provider>
-    </>
-  );
+    .catch((error) => {
+      console.log(error);
+      return false;
+    });
 }
 
 
-
-
+  return (
+    <CartContext.Provider
+      value={{
+        addProduct,
+        totalCartPrice,
+        numOfCartItems,
+        addProductToCart,
+        showing,
+        CartId,
+        getUserCart,
+        handelButton,
+        DeleteProduct,
+        RemoveItems,
+        setAddProductToCart,
+        setNumOfCartItems,
+        setTotalCartPrice,
+        clearUI,
+        setCartId,
+        handelWishlist,
+        getUserWishlist,
+        numOfWishlist,
+        setNumOfWishlist,
+        heart,
+        setHeart,
+        addProductToWishlist,
+        DeleteFromWishlist,
+      }}
+    >
+      {children}
+    </CartContext.Provider>
+  );
+}

@@ -12,20 +12,21 @@ import img6 from "../../src/assets/images/slider-2.jpeg";
 
 export default function HomeSlider() {
   var settings = {
-    dots: true, // عرض نقاط الترقيم
-    infinite: true, // تكرار الشرائح بشكل لا نهائي
-    speed: 500, // سرعة الانتقال بين الشرائح (بالمللي ثانية)
-    slidesToShow: 1, // عدد الشرائح المعروضة في نفس الوقت
-    slidesToScroll: 1, // عدد الشرائح التي يتم التمرير إليها
-    arrows: false, // إخفاء أسهم التنقل
-    autoplay: true, // تفعيل التشغيل التلقائي
-    autoplaySpeed: 3000, // الفترة الزمنية بين الشرائح (بالمللي ثانية)
+    dots: true , 
+    infinite: true, 
+    speed: 500,
+    slidesToShow: 1, 
+    slidesToScroll: 1, 
+    arrows: false, 
+    autoplay: true,
+    autoplaySpeed: 3000, 
     fade: false, // تعطيل تأثير التلاشي
-    cssEase: "cubic-bezier(0.4, 0, 0.2, 1)", // تحسين الانتقال
+    cssEase: "cubic-bezier(0.4, 0, 0.2, 1)", 
   };
 
   return (
-    <div className="slider-container">
+
+    <div className="slider-container ">
       <Slider {...settings}>
         <div>
           <img src={img5} className="h-80 w-full rounded-md" alt="" />

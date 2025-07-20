@@ -1,9 +1,9 @@
 import { useState } from "react";
-import axios from "axios";
 import { toast } from "react-toastify";
-import * as yup from "yup";
 import { useFormik } from "formik";
 import { useNavigate } from 'react-router-dom';
+import { authService } from "../services";
+import { forgetPasswordValidationSchema } from "../validation/authValidation";
 
 export default function UseForgetPass() {
     const navigate = useNavigate();
@@ -11,11 +11,7 @@ export default function UseForgetPass() {
 
   const handelForgetPass = (values) => {
     setLoading(true);
-    axios
-      .post(
-        "https://ecommerce.routemisr.com/api/v1/auth/forgotPasswords",
-        values
-      )
+    authService.forgetPassword(values.email)
       .then((data) => {
         console.log(data);
         
@@ -31,13 +27,6 @@ export default function UseForgetPass() {
       });
   };
 
-  const ForgetPasswordValidationSchema = yup.object().shape({
-    email: yup
-      .string()
-      .required("Email is required")
-      .email("Invalid email format"),
-  });
-
   const ForgetPasswordFormik = useFormik({
     initialValues: {
       email: "",
@@ -45,7 +34,7 @@ export default function UseForgetPass() {
     onSubmit: (values) => {
       handelForgetPass(values);
     },
-    validationSchema: ForgetPasswordValidationSchema,
+    validationSchema: forgetPasswordValidationSchema,
   });
 
   return { Loading, ForgetPasswordFormik };

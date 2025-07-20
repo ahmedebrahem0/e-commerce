@@ -1,11 +1,11 @@
 import { useQuery } from "react-query";
 import { productService } from "../services";
 
-export default function useProduct() {
+export default function useBrands() {
   const res = useQuery({
-    queryKey: ["allProduct"],
-    queryFn: productService.getAllProducts,
+    queryKey: ["brands"],
+    queryFn: productService.getAllBrands,
   });
 
   return res;
-}
+} 

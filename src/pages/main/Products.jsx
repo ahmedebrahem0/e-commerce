@@ -27,24 +27,63 @@ function SkeletonCard() {
 
 export default function Products() {
   const [correct, setCorrect] = useState(null);
-  const [heart, setHeart] = useState(null);
   const [isFetching, setIsFetching] = useState(true); // حالة تحميل أولية
 
-  const { addProduct } = useContext(CartContext);
+  const { addProduct, handelWishlist, getUserWishlist, heart, setHeart } =
+    useContext(CartContext);
+  // console.log(handelWishlist);
+
+  // async function Wishlist(id) {
+  //   setHeart(id);
+  //   // setNumOfWishlist();
+  //   const response = await handelWishlist(id);
+  //   console.log(response);
+
+  //   if(response.status === true){
+  //     setTimeout(() => {
+  //       setHeart(null);
+  //     }, 2000);
+  //     toast.success(response.res.data.message)
+  //   } else {
+  //     setHeart(null);
+  //     toast.error(response.error.response.data.message);
+  //   }
+  // }
+
+  async function Wishlist(id) {
+    if (heart === id) return; // إذا كان نفس المنتج مضاف بالفعل لا نفعل شيء
+    setHeart(id); // تعيين المنتج الحالي في حالة الانتظار
+    const response = await handelWishlist(id);
+    console.log("response from handelWishlist", response);
+    if (response.status === true) {
+      const res = await getUserWishlist();
+      console.log(res);
+      if (res === false) {
+        toast.success(response.res.data.message); // فقط عند النجاح
+        console.log("res");
+        setTimeout(() => {
+          setHeart(null);
+        }, 2000);
+      }
+    } else {
+      setHeart(null);
+      toast.error(response.error.response.data.message);
+    }
+  }
 
   async function handelProduct(id) {
     const response = await addProduct(id);
     setCorrect(id);
-    setHeart(id);
+    // setHeart(id);
 
     if (response.status === true) {
       setTimeout(() => {
         setCorrect(null);
-        setHeart(null);
+        // setHeart(null);
       }, 2000);
       toast.success(response.res.data.message);
     } else {
-      setHeart(null);
+      // setHeart(null);
       toast.error(response.error.response.data.message);
     }
   }
@@ -83,65 +122,36 @@ export default function Products() {
         className="progress-bar fixed top-0 left-0 h-1 bg-blue-500 z-50"
         style={{ scaleX }}
       />
-      <div className="container w-[90%] mx-auto">
-        <div className="mt-3 grid grid-cols-1 md:grid-cols-3 gap-4 h-auto md:h-80 px-2 mb-20">
-          {/* Slider Section */}
-          <div className="w-full h-60 md:h-80 md:col-span-2 md:mb-30 rounded-md">
-            <HomeSlider />
-          </div>
-
-          {/* Side Images Section */}
-          <div className="w-full h-60 md:h-80 grid gap-4 grid-rows-2 mt-[100px] sm:mt-0">
-            <div className="h-full">
-              <img
-                className="w-full h-full object-cover rounded-md"
-                src={img1}
-                alt="Image 1"
-              />
-            </div>
-            <div className="h-full">
-              <img
-                className="w-full h-full object-cover rounded-md"
-                src={img2}
-                alt="Image 2"
-              />
-            </div>
-          </div>
-        </div>
-
-        <div className="mt-5">
-          <h2 className="text-lg my-1">Shop Popular Categories</h2>
-          <HomeCategory />
-        </div>
-
-        <div className="allProduct grid md:grid-cols-3 lg:grid-cols-6 mt-8">
-          {isFetching
-            ? Array(12)
-                .fill(0)
-                .map((_, index) => <SkeletonCard key={index} />)
-            : products.map((product) => (
-                <motion.div
-                  className="product px-2 mb-3 bg-white px-4 pb-2 rounded-lg shadow-md cursor-pointer"
-                  key={product._id}
-                  initial={{ opacity: 1 }}
-                  whileHover={{
-                    scale: 1.05,
-                    translateY: -5,
-                    opacity: 1,
-                  }}
-                  transition={{
-                    type: "spring",
-                    stiffness: 300,
-                  }}
-                >
-                  <div className="hover:shadow-orange-400 overflow-hidden group">
-                    <i
-                      onClick={() => handelProduct(product._id)}
-                      className={`${
-                        correct === product._id
-                          ? `fa fa-check`
-                          : `fa-solid fa-cart-shopping `
-                      }
+      <div className="dark:bg-gray-900  dark:text-white dark:shadow-lg  dark:shadow-gray-800">
+        <div className="container w-[90%] mx-auto">
+          <div className="allProduct grid md:grid-cols-3  lg:grid-cols-6 pt-8 shadow-black">
+            {isFetching
+              ? Array(12)
+                  .fill(0)
+                  .map((_, index) => <SkeletonCard key={index} />)
+              : products.map((product) => (
+                  <motion.div
+                    className="product  mb-5 bg-white px-4 pb-2 rounded-lg shadow-md cursor-pointer dark:bg-[#2A3E4B] dark:shadow-gray-800"
+                    key={product._id}
+                    initial={{ opacity: 1 }}
+                    whileHover={{
+                      scale: 1.05,
+                      translateY: -5,
+                      opacity: 1,
+                    }}
+                    transition={{
+                      type: "spring",
+                      stiffness: 300,
+                    }}
+                  >
+                    <div className="hover:shadow-orange-400 overflow-hidden group pt-2">
+                      <i
+                        onClick={() => handelProduct(product._id)}
+                        className={`${
+                          correct === product._id
+                            ? `fa fa-check`
+                            : `fa-solid fa-cart-shopping `
+                        }
                         hidden group-hover:flex 
                         w-10 h-10 
                         text-white bg-green-500 
@@ -149,14 +159,14 @@ export default function Products() {
                         items-center justify-center 
                         absolute top-2 right-2 
                         transition-all duration-300 ease-in-out`}
-                    ></i>
-                    <i
-                      onClick={() => handelProduct(product._id)}
-                      className={`${
-                        heart === product._id
-                          ? `fa fa-check`
-                          : `fa-solid fa-heart `
-                      }
+                      ></i>
+                      <i
+                        onClick={() => Wishlist(product._id)}
+                        className={`${
+                          heart === product._id
+                            ? `fa fa-check`
+                            : `fa-solid fa-heart `
+                        }
                         hidden group-hover:flex 
                         w-10 h-10 
                         text-white bg-green-500 
@@ -164,41 +174,47 @@ export default function Products() {
                         items-center justify-center 
                         absolute top-12 right-2
                         transition-all duration-300 ease-in-out`}
-                    ></i>
-                    <Link to={`/ProductDetails/${product._id}`}>
-                      <img
-                        className="w-full h-[270px] object-cover rounded-md mb-2"
-                        src={product.imageCover}
-                        alt={product.title}
-                      />
-                      <h6 className="text-[#0aad0a] font-medium">
-                        {product.category.name}
-                      </h6>
-                      <h2 className="font-semibold text-gray-700">
-                        {product.title.split(" ").slice(0, 2).join(" ")}
-                      </h2>
-                      <div className="flex justify-between items-center mt-2">
-                        {product.priceAfterDiscount ? (
-                          <p className="line-through text-red-700 flex items-center">
-                            {product.priceAfterDiscount}
-                            <span className="text-xs bg-red">EGP</span>
+                      >
+                        {/* {console.log(product._id)} */}
+                      </i>
+                      <Link
+                        to={`/ProductDetails/${product._id}`}
+                        className="dark:bg-black"
+                      >
+                        <img
+                          className="w-full h-[270px] object-cover rounded-md mb-2"
+                          src={product.imageCover}
+                          alt={product.title}
+                        />
+                        <h6 className="text-[#0aad0a] font-medium">
+                          {product.category.name}
+                        </h6>
+                        <h2 className="font-semibold text-gray-700 dark:text-white">
+                          {product.title.split(" ").slice(0, 2).join(" ")}
+                        </h2>
+                        <div className="flex justify-between items-center mt-2">
+                          {product.priceAfterDiscount ? (
+                            <p className="line-through text-red-700 flex items-center">
+                              {product.priceAfterDiscount}
+                              <span className="text-xs bg-red">EGP</span>
+                            </p>
+                          ) : (
+                            ""
+                          )}
+                          <p className="flex items-center">
+                            {product.price}
+                            <span className="text-xs">EGP</span>
                           </p>
-                        ) : (
-                          ""
-                        )}
-                        <p className="flex items-center">
-                          {product.price}
-                          <span className="text-xs">EGP</span>
-                        </p>
-                        <p>
-                          <i className="fa-solid fa-star text-yellow-500"></i>{" "}
-                          {product.ratingsAverage}
-                        </p>
-                      </div>
-                    </Link>
-                  </div>
-                </motion.div>
-              ))}
+                          <p>
+                            <i className="fa-solid fa-star text-yellow-500"></i>{" "}
+                            {product.ratingsAverage}
+                          </p>
+                        </div>
+                      </Link>
+                    </div>
+                  </motion.div>
+                ))}
+          </div>
         </div>
       </div>
     </>

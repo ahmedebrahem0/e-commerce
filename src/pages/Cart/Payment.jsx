@@ -1,11 +1,11 @@
     import React, { useContext, useState } from "react";
-    import { useFormik } from "formik";
-    import axios from "axios";
-    import { CartContext } from "../../context/CartContext";
+import { useFormik } from "formik";
+import axios from "axios";
+import { CartContext } from "../../context/CartContext";
 import LoadingAuth from "../../components/LoadingAuth";
 import toast, { Toaster } from "react-hot-toast";
 import { Link, useNavigate } from "react-router-dom";
-import * as yup from "yup";
+import { paymentValidationSchema } from "../../validation/authValidation";
 
 
     export default function Login() {
@@ -100,29 +100,13 @@ const navigate = useNavigate()
             phone: "",
             city: "",
           },
-
-          validationSchema: yup.object().shape({
-            phone: yup
-              .string()
-              .required("Phone number is required")
-              .matches(/^01[01235][0-9]{8}$/, "Invalid phone number"),
-            details: yup
-              .string()
-              .min(4, "Too Short!")
-              .max(50, "Too Long!")
-              .required("Required"),
-            city: yup
-              .string()
-              .min(4, "Too Short!")
-              .max(10, "Too Long!")
-              .required("Required"),
-          }),
+          validationSchema: paymentValidationSchema,
           onSubmit: detectOrder,
         });
 
     return (
       <>
-        <form onSubmit={PaymentFormik.handleSubmit}>
+        <form onSubmit={PaymentFormik.handleSubmit} className="dark:bg-gray-900 dark:text-white">
           <div className="flex flex-col justify-center items-center p-5">
             <div className="w-[70%] mb-3">
               <div className="my-2 text-xl">
@@ -150,7 +134,7 @@ const navigate = useNavigate()
               ) : null}
             </div>
 
-            <div className="w-[70%]">
+            <div className="w-[70%] my-2">
               <label htmlFor="phone">phone:</label>
               <input
                 value={PaymentFormik.values.phone}

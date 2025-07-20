@@ -1,10 +1,10 @@
 
 import { useState } from "react";
-import axios from "axios";
 import { toast } from "react-toastify";
-import * as yup from "yup";
 import { useFormik } from "formik";
 import { useNavigate } from "react-router-dom";
+import { authService } from "../services";
+import { resetPasswordValidationSchema } from "../validation/authValidation";
 
 export default function UseResetPass() {
       let navigate = useNavigate();
@@ -13,11 +13,7 @@ export default function UseResetPass() {
     
     const handelResetPassword = (values) => {
         setLoading(false);
-              axios
-                .put(
-                  "https://ecommerce.routemisr.com/api/v1/auth/resetPassword",
-                  values
-                )
+        authService.resetPassword(values)
                 .then((data) => {
                   console.log(data)
                   setLoading(false);
@@ -31,19 +27,7 @@ export default function UseResetPass() {
                   setLoading(true);
                 })
     }
-
-    const handelValidationSchema =yup.object().shape({
-      email: yup
-        .string()
-        .required("Email is required")
-        .email("Invalid email format"),
-      newPassword: yup
-        .string()
-        .required("newPassword is required")
-        .min(3, "newPassword must be at least 3 characters"),
-    })
-
-    const  ResetPasswordFormik= useFormik({
+    const ResetPasswordFormik = useFormik({
       initialValues: {
         email: "",
         newPassword: "",
@@ -51,7 +35,7 @@ export default function UseResetPass() {
       onSubmit: (values) => {
         handelResetPassword(values);
       },
-      validationSchema: handelValidationSchema,
+      validationSchema: resetPasswordValidationSchema,
     });
 
   return { ResetPasswordFormik, Showing, setShowing, Loading };

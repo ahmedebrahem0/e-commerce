@@ -1,9 +1,9 @@
 import React, { useState } from 'react'
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import * as yup from "yup";
 import { useFormik } from "formik";
-import { ToastContainer, toast } from "react-toastify";
+import { toast } from "react-toastify";
+import { authService } from "../services";
+import { resetCodeValidationSchema } from "../validation/authValidation";
 
 
 export default function UseResetCode() {
@@ -14,11 +14,7 @@ export default function UseResetCode() {
 
     const handelResetCode = (values) => {
         setLoading(false);
-              axios
-                .post(
-                  "https://ecommerce.routemisr.com/api/v1/auth/verifyResetCode",
-                  values
-                )
+        authService.verifyResetCode(values.resetCode)
                 .then((data) => {
                   console.log(data)
                   setLoading(false);
@@ -35,15 +31,6 @@ export default function UseResetCode() {
                 })
     }
     
-    const handelValidationSchema= yup.object().shape({
-      resetCode: yup
-        .string()
-        .required("Please enter the reset code")
-        .min(4, "Must be 6 numbers")
-        //   .min(6, "Must be 6 numbers")
-        .matches(/^[0-9]*$/),
-    })
-
     const VerifyResetCodeFormik = useFormik({
       initialValues: {
         resetCode: "",
@@ -51,7 +38,7 @@ export default function UseResetCode() {
       onSubmit: (values) => {
         handelResetCode(values);
       },
-      validationSchema: handelValidationSchema,
+      validationSchema: resetCodeValidationSchema,
     });
 
   return { Loading, VerifyResetCodeFormik };

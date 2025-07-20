@@ -1,10 +1,10 @@
-import axios from "axios";
 import { useFormik } from "formik";
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { MoonLoader } from "react-spinners";
-import * as yup from "yup";
 import { ToastContainer, toast } from "react-toastify";
+import { authService } from "../../services";
+import { changePasswordValidationSchema } from "../../validation/authValidation";
 
 export default function ChangeMyPassword() {
   let navigate = useNavigate();
@@ -17,11 +17,7 @@ export default function ChangeMyPassword() {
     },
     onSubmit: (values) => {
       setLoading(false);
-      axios
-        .put(
-          "https://ecommerce.routemisr.com/api/v1/users/changeMyPassword", values
-          
-        )
+      authService.changePassword(values)
         .then((data) => {
           setLoading(false);
           toast.success("Password updated successfully");
@@ -36,24 +32,7 @@ export default function ChangeMyPassword() {
           console.log(error);
         });
     },
-    validationSchema: yup.object().shape({
-      currentPassword: yup.string().required("currentPassword is required"),
-      password: yup
-        .string()
-        .required("Password is required")
-        .min(3, "Password must be at least 3 characters"),
-      // .matches(/[A-Z]/, "Password must contain at least one uppercase letter")
-      // .matches(/[a-z]/, "Password must contain at least one lowercase letter")
-      // .matches(/\d/, "Password must contain at least one number")
-      // .matches(
-      //   /[@$!%*?&#]/,
-      //   "Password must contain at least one special character"
-      // )
-      rePassword: yup
-        .string()
-        .required("Re-entering password is required")
-        .oneOf([yup.ref("password")], "Passwords must match"),
-    }),
+    validationSchema: changePasswordValidationSchema,
 
     validate: (errors) => {
       console.log(errors);
